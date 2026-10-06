@@ -12,7 +12,7 @@ services:
       DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL with sslmode=verify-full and sslrootcert=/app/certs/hostava-db-ca.pem}
     volumes:
       - type: bind
-        source: ./certs/hostava-db-ca.pem
+        source: ./files/hostava-db-ca.pem
         target: /app/certs/hostava-db-ca.pem
         read_only: true
         bind:

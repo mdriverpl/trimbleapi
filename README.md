@@ -8,10 +8,10 @@ Plik `compose.yaml` pobiera gotowy obraz `ghcr.io/mdriverpl/trimbleapi:latest` i
 
 Poczekaj na sukces workflow [Publish Docker image](https://github.com/mdriverpl/trimbleapi/actions/workflows/publish-image.yml). Nowy pakiet GHCR moze byc prywatny: w ustawieniach pakietu ustaw widocznosc Public albo zaloguj serwer przez `docker login ghcr.io -u mdriverpl` (token classic z `read:packages`). Nie wpisuj tokenu GitHub do Compose. [Dokumentacja GHCR](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry).
 
-Pliki `.env` i `certs/hostava-db-ca.pem` umiesc na serwerze obok Compose. Nie sa zawarte w obrazie ani repozytorium. Do budowania obrazu GitHub nie potrzebuje hasel bazy ani certyfikatu.
+Pliki `.env` i `files/hostava-db-ca.pem` umiesc na serwerze obok Compose. Nie sa zawarte w obrazie ani repozytorium. Do budowania obrazu GitHub nie potrzebuje hasel bazy ani certyfikatu.
 
 1. Na serwerze skopiuj `.env.example` do `.env` i wpisz has?o Hostava w `DATABASE_URL`. Znaki specjalne w ha?le zakoduj jako URL. Ustaw `ADMIN_TOKEN` (minimum 24 znaki) i `ENCRYPTION_KEY` (64 znaki hex). Przy przenoszeniu istniej?cej aplikacji zachowaj jej klucz szyfrowania.
-2. Skopiuj otrzymany certyfikat CA do `certs/hostava-db-ca.pem`. Plik musi by? czytelny dla u?ytkownika kontenera. Certyfikat i `.env` nie s? publikowane w repozytorium.
+2. W panelu hostingu dodaj plik `hostava-db-ca.pem` z uprawnieniami `0644` w sekcji plikow. Panel zapisuje go w `./files/hostava-db-ca.pem`; Compose montuje go jako `/app/certs/hostava-db-ca.pem`. Po zmianie pliku wdroz aplikacje ponownie. Przy wdrozeniu recznym skopiuj otrzymany certyfikat CA do `files/hostava-db-ca.pem`. Plik musi by? czytelny dla u?ytkownika kontenera. Certyfikat i `.env` nie s? publikowane w repozytorium.
 3. W serwerowym `DATABASE_URL` pozostaw `sslmode=verify-full&sslrootcert=/app/certs/hostava-db-ca.pem`. Jest to ?cie?ka wewn?trz kontenera, nie ?cie?ka Windows. Compose montuje certyfikat tylko do odczytu i wymaga istniej?cego pliku.
 4. Zatrzymaj wcze?niejsz? instancj? aplikacji korzystaj?c? z tej samej bazy. Blokada PostgreSQL pozwala dzia?a? tylko jednemu backendowi.
 

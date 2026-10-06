@@ -13,3 +13,4 @@ data/
 .local-runtime/
 
 certs/*.pem
+files/
