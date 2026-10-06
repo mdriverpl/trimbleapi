@@ -4,7 +4,7 @@ Aplikacja TypeScript / Node.js 24 / Vue 3 / PostgreSQL 18 do cyklicznego pobiera
 
 ## Uruchomienie Docker Compose (Hostava)
 
-Domy?lny plik `compose.yaml` uruchamia backend i panel z zewn?trzn? baz? Hostava. Nie tworzy kontenera PostgreSQL.
+Domy?lny plik `compose.yaml` uruchamia backend i panel z zewn?trzn? baz? Hostava. Nie tworzy kontenera PostgreSQL. Kod do budowy obrazu jest pobierany bezpo?rednio z repozytorium `https://github.com/mdriverpl/trimbleapi.git`, z ga??zi `main`. Docker musi mie? dost?p do repozytorium. Plik `.env` i certyfikat CA nadal umie?? na serwerze obok pliku Compose; nie s? pobierane z GitHuba.
 
 1. Na serwerze skopiuj `.env.example` do `.env` i wpisz has?o Hostava w `DATABASE_URL`. Znaki specjalne w ha?le zakoduj jako URL. Ustaw `ADMIN_TOKEN` (minimum 24 znaki) i `ENCRYPTION_KEY` (64 znaki hex). Przy przenoszeniu istniej?cej aplikacji zachowaj jej klucz szyfrowania.
 2. Skopiuj otrzymany certyfikat CA do `certs/hostava-db-ca.pem`. Plik musi by? czytelny dla u?ytkownika kontenera. Certyfikat i `.env` nie s? publikowane w repozytorium.
