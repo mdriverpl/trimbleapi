@@ -4,7 +4,11 @@ Aplikacja TypeScript / Node.js 24 / Vue 3 / PostgreSQL 18 do cyklicznego pobiera
 
 ## Uruchomienie Docker Compose (Hostava)
 
-Domy?lny plik `compose.yaml` uruchamia backend i panel z zewn?trzn? baz? Hostava. Nie tworzy kontenera PostgreSQL. Kod do budowy obrazu jest pobierany bezpo?rednio z repozytorium `https://github.com/mdriverpl/trimbleapi.git`, z ga??zi `main`. Docker musi mie? dost?p do repozytorium. Plik `.env` i certyfikat CA nadal umie?? na serwerze obok pliku Compose; nie s? pobierane z GitHuba.
+Plik `compose.yaml` pobiera gotowy obraz `ghcr.io/mdriverpl/trimbleapi:latest` i uruchamia go z baza Hostava. Obraz (Linux amd64) buduje GitHub Actions po kazdym push do `main`; workflow mozna uruchomic takze recznie w zakladce Actions. Kazdy obraz otrzymuje tag `latest` oraz `sha-<pelny hash commita>`. Zmienna `IMAGE_TAG` pozwala wybrac konkretna wersje. Serwer nie buduje kodu.
+
+Poczekaj na sukces workflow [Publish Docker image](https://github.com/mdriverpl/trimbleapi/actions/workflows/publish-image.yml). Nowy pakiet GHCR moze byc prywatny: w ustawieniach pakietu ustaw widocznosc Public albo zaloguj serwer przez `docker login ghcr.io -u mdriverpl` (token classic z `read:packages`). Nie wpisuj tokenu GitHub do Compose. [Dokumentacja GHCR](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry).
+
+Pliki `.env` i `certs/hostava-db-ca.pem` umiesc na serwerze obok Compose. Nie sa zawarte w obrazie ani repozytorium. Do budowania obrazu GitHub nie potrzebuje hasel bazy ani certyfikatu.
 
 1. Na serwerze skopiuj `.env.example` do `.env` i wpisz has?o Hostava w `DATABASE_URL`. Znaki specjalne w ha?le zakoduj jako URL. Ustaw `ADMIN_TOKEN` (minimum 24 znaki) i `ENCRYPTION_KEY` (64 znaki hex). Przy przenoszeniu istniej?cej aplikacji zachowaj jej klucz szyfrowania.
 2. Skopiuj otrzymany certyfikat CA do `certs/hostava-db-ca.pem`. Plik musi by? czytelny dla u?ytkownika kontenera. Certyfikat i `.env` nie s? publikowane w repozytorium.
@@ -12,7 +16,8 @@ Domy?lny plik `compose.yaml` uruchamia backend i panel z zewn?trzn? baz? Hostava
 4. Zatrzymaj wcze?niejsz? instancj? aplikacji korzystaj?c? z tej samej bazy. Blokada PostgreSQL pozwala dzia?a? tylko jednemu backendowi.
 
 ```sh
-docker compose up -d --build
+docker compose pull
+docker compose up -d
 docker compose logs --tail=100 trimble
 ```
 

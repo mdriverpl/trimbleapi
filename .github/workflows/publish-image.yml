@@ -1,0 +1,52 @@
+name: Publish Docker image
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-image-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Build image
+        env:
+          IMAGE: ghcr.io/${{ github.repository }}
+        run: |
+          IMAGE="${IMAGE,,}"
+          docker build --pull \
+            --label "org.opencontainers.image.source=https://github.com/${GITHUB_REPOSITORY}" \
+            --label "org.opencontainers.image.revision=${GITHUB_SHA}" \
+            --tag "${IMAGE}:latest" \
+            --tag "${IMAGE}:sha-${GITHUB_SHA}" .
+      - name: Log in to GHCR
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
+        run: echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+      - name: Publish image
+        env:
+          IMAGE: ghcr.io/${{ github.repository }}
+        run: |
+          IMAGE="${IMAGE,,}"
+          docker push "${IMAGE}:sha-${GITHUB_SHA}"
+          docker push "${IMAGE}:latest"
+      - name: Log out
+        if: always()
+        run: docker logout ghcr.io

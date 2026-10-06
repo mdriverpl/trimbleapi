@@ -1,8 +1,6 @@
 services:
   trimble:
-    build:
-      context: "https://github.com/mdriverpl/trimbleapi.git#main"
-      dockerfile: Dockerfile
+    image: ghcr.io/mdriverpl/trimbleapi:${IMAGE_TAG:-latest}
     restart: unless-stopped
     ports:
       - "127.0.0.1:${PORT:-3000}:3000"
