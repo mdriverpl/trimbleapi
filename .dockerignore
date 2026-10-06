@@ -7,3 +7,5 @@ data
 .npm-cache
 .test-postgres
 .local-runtime
+
+certs/*.pem

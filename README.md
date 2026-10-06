@@ -2,18 +2,29 @@
 
 Aplikacja TypeScript / Node.js 24 / Vue 3 / PostgreSQL 18 do cyklicznego pobierania SOAP. Domyślnie 10 osobnych wątków `worker_threads` realizuje zadania kont klientów. Liczba kont jest niezależna od rozmiaru puli; każde ma `idclient`, użytkownika, hasło, aktywność i przypisaną usługę.
 
-## Uruchomienie Docker Compose
+## Uruchomienie Docker Compose (Hostava)
+
+Domy?lny plik `compose.yaml` uruchamia backend i panel z zewn?trzn? baz? Hostava. Nie tworzy kontenera PostgreSQL.
+
+1. Na serwerze skopiuj `.env.example` do `.env` i wpisz has?o Hostava w `DATABASE_URL`. Znaki specjalne w ha?le zakoduj jako URL. Ustaw `ADMIN_TOKEN` (minimum 24 znaki) i `ENCRYPTION_KEY` (64 znaki hex). Przy przenoszeniu istniej?cej aplikacji zachowaj jej klucz szyfrowania.
+2. Skopiuj otrzymany certyfikat CA do `certs/hostava-db-ca.pem`. Plik musi by? czytelny dla u?ytkownika kontenera. Certyfikat i `.env` nie s? publikowane w repozytorium.
+3. W serwerowym `DATABASE_URL` pozostaw `sslmode=verify-full&sslrootcert=/app/certs/hostava-db-ca.pem`. Jest to ?cie?ka wewn?trz kontenera, nie ?cie?ka Windows. Compose montuje certyfikat tylko do odczytu i wymaga istniej?cego pliku.
+4. Zatrzymaj wcze?niejsz? instancj? aplikacji korzystaj?c? z tej samej bazy. Blokada PostgreSQL pozwala dzia?a? tylko jednemu backendowi.
 
 ```sh
-node scripts/init-env.mjs
 docker compose up -d --build
+docker compose logs --tail=100 trimble
 ```
 
-Panel: http://localhost:3000. Zaloguj się wartością `ADMIN_TOKEN` z lokalnego `.env`. Skrypt tworzy losowy token, klucz szyfrowania i hasło PostgreSQL; uzupełnia brakujące zmienne, zachowując istniejące wartości. Uruchom go także po aktualizacji starszego projektu. Jeśli nie masz lokalnego Node.js, skopiuj `.env.example` do `.env` i ustaw losowy token (minimum 24 znaki), klucz 32 bajty zapisany jako 64 znaki hex oraz hasło bazy. Dla Compose użyj hasła hex, aby można było bezpośrednio umieścić je w adresie połączenia.
+Panel: http://localhost:3000 na serwerze. Zaloguj si? warto?ci? `ADMIN_TOKEN`. Port jest dost?pny tylko lokalnie; dla dost?pu przez domen? skonfiguruj reverse proxy z HTTPS na port 3000. Przy pierwszym starcie aplikacja automatycznie tworzy tabele w bazie. Dane z wcze?niejszej bazy lokalnej nie s? automatycznie przenoszone.
 
-Compose uruchamia PostgreSQL 18 i backend z panelem. Backend czeka na healthcheck bazy. Porty aplikacji i PostgreSQL są dostępne tylko lokalnie; przy zdalnym dostępie do panelu użyj reverse proxy z HTTPS. Dane PostgreSQL znajdują się w trwałym wolumenie `postgres-data` montowanym do `/var/lib/postgresql`, zgodnie z układem obrazu PostgreSQL 18. `docker compose down` zachowuje dane; opcja `-v` usuwa wolumen. Harmonogram działa w jednej instancji: blokada sesyjna PostgreSQL nie pozwala uruchomić drugiego backendu na tej samej bazie.
+Alternatywnie `compose.local.yaml` uruchamia aplikacj? i PostgreSQL 18 z wolumenem `postgres-data`. Ustaw `POSTGRES_PASSWORD`, `ADMIN_TOKEN` oraz `ENCRYPTION_KEY`, nast?pnie uruchom:
 
-Jeśli port 5432 jest zajęty, ustaw `POSTGRES_PORT` i odpowiedni port w lokalnym `DATABASE_URL`. Wewnątrz Compose aplikacja zawsze łączy się z `postgres:5432`. Zmiana `POSTGRES_PASSWORD` po utworzeniu wolumenu nie zmienia hasła istniejącej roli PostgreSQL — trzeba zmienić je również w bazie.
+```sh
+docker compose -f compose.local.yaml up -d --build
+```
+
+Wariant lokalny u?ywa `postgres:5432` i nie korzysta z Hostava ani certyfikatu. Wolumen pozostaje po `down`; opcja `down -v` usuwa jego dane.
 
 ## Uruchomienie lokalne
 
@@ -31,7 +42,8 @@ Jeśli używasz PostgreSQL z Compose lub własnej bazy:
 ```sh
 npm install
 node scripts/init-env.mjs
-docker compose up -d postgres
+# Ustaw DATABASE_URL na lokalny PostgreSQL (host 127.0.0.1, port POSTGRES_PORT).
+docker compose -f compose.local.yaml up -d postgres
 npm run build
 node --env-file=.env backend/dist/server.js
 ```
