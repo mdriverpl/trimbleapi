@@ -1,0 +1,15 @@
+import { randomBytes } from 'node:crypto';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+const path=new URL('../.env',import.meta.url);
+let content=existsSync(path)?readFileSync(path,'utf8'):'';
+const read=name=>content.match(new RegExp('^'+name+'=(.*)$','m'))?.[1].trim();
+const add=(name,value)=>{if(read(name)===undefined)content+=(content&&!content.endsWith('\n')?'\n':'')+`${name}=${value}\n`;};
+add('PORT','3000');
+add('ADMIN_TOKEN',randomBytes(32).toString('hex'));
+add('ENCRYPTION_KEY',randomBytes(32).toString('hex'));
+add('WORKER_COUNT','10');
+add('POSTGRES_PASSWORD',randomBytes(24).toString('hex'));
+add('POSTGRES_PORT','5432');
+add('DATABASE_URL',`postgresql://trimble:${encodeURIComponent(read('POSTGRES_PASSWORD'))}@127.0.0.1:${read('POSTGRES_PORT')}/trimble`);
+writeFileSync(path,content,{mode:0o600});
+console.log('Uzupełniono .env. Zachowano istniejące wartości i klucz szyfrowania. Token logowania: ADMIN_TOKEN.');

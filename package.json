@@ -1,0 +1,19 @@
+{
+  "name": "trimble-control",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "build": "npm run build -w backend && npm run build -w frontend",
+    "dev": "npm run build -w backend && concurrently -k \"npm run watch -w backend\" \"node --env-file=.env --watch backend/dist/server.js\" \"npm run dev -w frontend\"",
+    "start": "node --env-file=.env backend/dist/server.js",
+    "test": "npm run test -w backend",
+    "start:local": "node scripts/start-local.mjs"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.0"
+  }
+}

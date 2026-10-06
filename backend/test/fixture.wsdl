@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="Fleet" targetNamespace="urn:fixture" xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="urn:fixture" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+ <types><xsd:schema targetNamespace="urn:fixture" elementFormDefault="qualified">
+  <xsd:element name="Fetch"><xsd:complexType><xsd:sequence><xsd:element name="idclient" type="xsd:string"/><xsd:element name="user" type="xsd:string"/><xsd:element name="pass" type="xsd:string"/></xsd:sequence></xsd:complexType></xsd:element>
+  <xsd:element name="FetchResponse"><xsd:complexType><xsd:sequence><xsd:element name="client" type="xsd:string"/><xsd:element name="vehicles" type="xsd:int"/></xsd:sequence></xsd:complexType></xsd:element>
+ </xsd:schema></types>
+ <message name="FetchInput"><part name="parameters" element="tns:Fetch"/></message>
+ <message name="FetchOutput"><part name="parameters" element="tns:FetchResponse"/></message>
+ <portType name="FleetPort"><operation name="Fetch"><input message="tns:FetchInput"/><output message="tns:FetchOutput"/></operation></portType>
+ <binding name="FleetBinding" type="tns:FleetPort"><soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/><operation name="Fetch"><soap:operation soapAction="urn:fixture/Fetch"/><input><soap:body use="literal"/></input><output><soap:body use="literal"/></output></operation></binding>
+ <service name="Fleet"><port name="FleetPort" binding="tns:FleetBinding"><soap:address location="SOAP_ENDPOINT"/></port></service>
+</definitions>

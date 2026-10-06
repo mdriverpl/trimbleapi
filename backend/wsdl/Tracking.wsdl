@@ -1,0 +1,150 @@
+<definitions name='TrackingService' targetNamespace='http://fleetworks.acunia.com/fleet/service' xmlns='http://schemas.xmlsoap.org/wsdl/' xmlns:ns1='http://fleetworks.acunia.com/fleet/fault' xmlns:ns2='http://fleetworks.acunia.com/fleet/types' xmlns:soap='http://schemas.xmlsoap.org/wsdl/soap/' xmlns:tns='http://fleetworks.acunia.com/fleet/service' xmlns:xsd='http://www.w3.org/2001/XMLSchema'>
+ <types>
+  <xs:schema targetNamespace='http://fleetworks.acunia.com/fleet/fault' version='1.0' xmlns:tns='http://fleetworks.acunia.com/fleet/fault' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
+   <xs:complexType name='InvalidDataException'>
+    <xs:sequence>
+     <xs:element minOccurs='0' name='field' type='xs:string'/>
+     <xs:element minOccurs='0' name='message' type='xs:string'/>
+     <xs:element minOccurs='0' name='value' type='xs:string'/>
+    </xs:sequence>
+   </xs:complexType>
+   <xs:complexType name='OperationFailedException'>
+    <xs:sequence>
+     <xs:element minOccurs='0' name='message' type='xs:string'/>
+    </xs:sequence>
+   </xs:complexType>
+   <xs:element name='InvalidDataException' type='tns:InvalidDataException'/>
+   <xs:element name='OperationFailedException' type='tns:OperationFailedException'/>
+  </xs:schema>
+  <xs:schema targetNamespace='http://fleetworks.acunia.com/fleet/service' version='1.0' xmlns:ns1='http://fleetworks.acunia.com/fleet/types' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
+   <xs:import namespace='http://fleetworks.acunia.com/fleet/types'/>
+   <xs:complexType name='pollTraces'>
+    <xs:sequence>
+     <xs:element minOccurs='0' name='customer' type='xs:string'/>
+     <xs:element minOccurs='0' name='mark' type='xs:string'/>
+    </xs:sequence>
+   </xs:complexType>
+   <xs:complexType name='pollTracesResponse'>
+    <xs:sequence>
+     <xs:element minOccurs='0' name='return' type='ns1:TracePollData'/>
+    </xs:sequence>
+   </xs:complexType>
+   <xs:complexType name='requestTrace'>
+    <xs:sequence>
+     <xs:element minOccurs='0' name='customer' type='xs:string'/>
+     <xs:element maxOccurs='unbounded' minOccurs='0' name='terminalIds' type='xs:string'/>
+    </xs:sequence>
+   </xs:complexType>
+   <xs:complexType name='requestTraceResponse'>
+    <xs:sequence/>
+   </xs:complexType>
+   <xs:element name='pollTraces' type='tns:pollTraces'/>
+   <xs:element name='pollTracesResponse' type='tns:pollTracesResponse'/>
+   <xs:element name='requestTrace' type='tns:requestTrace'/>
+   <xs:element name='requestTraceResponse' type='tns:requestTraceResponse'/>
+  </xs:schema>
+  <xs:schema targetNamespace='http://fleetworks.acunia.com/fleet/types' version='1.0' xmlns:tns='http://fleetworks.acunia.com/fleet/types' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
+   <xs:complexType name='CoordinateData'>
+    <xs:sequence>
+     <xs:element name='latitude' type='xs:decimal'/>
+     <xs:element name='longitude' type='xs:decimal'/>
+    </xs:sequence>
+   </xs:complexType>
+   <xs:complexType name='PropertyData'>
+    <xs:sequence>
+     <xs:element name='key' type='xs:string'/>
+     <xs:element name='value' type='xs:string'/>
+    </xs:sequence>
+   </xs:complexType>
+   <xs:complexType name='TraceData'>
+    <xs:sequence>
+     <xs:element name='type' type='xs:short'/>
+     <xs:element name='source' type='xs:string'/>
+     <xs:element name='time' type='xs:dateTime'/>
+     <xs:element minOccurs='0' name='coordinate' type='tns:CoordinateData'/>
+     <xs:element minOccurs='0' name='mileage' type='xs:int'/>
+     <xs:element minOccurs='0' name='heading' type='xs:short'/>
+     <xs:element minOccurs='0' name='speed' type='xs:short'/>
+     <xs:element maxOccurs='unbounded' minOccurs='0' name='property' type='tns:PropertyData'/>
+    </xs:sequence>
+   </xs:complexType>
+   <xs:complexType name='TracePollData'>
+    <xs:sequence>
+     <xs:element maxOccurs='unbounded' minOccurs='0' name='traces' type='tns:TraceData'/>
+     <xs:element name='mark' type='xs:string'/>
+     <xs:element name='more' type='xs:boolean'/>
+    </xs:sequence>
+   </xs:complexType>
+  </xs:schema>
+ </types>
+ <message name='Tracking_requestTraceResponse'>
+  <part element='tns:requestTraceResponse' name='requestTraceResponse'></part>
+ </message>
+ <message name='InvalidDataException'>
+  <part element='ns1:InvalidDataException' name='InvalidDataException'></part>
+ </message>
+ <message name='OperationFailedException'>
+  <part element='ns1:OperationFailedException' name='OperationFailedException'></part>
+ </message>
+ <message name='Tracking_pollTraces'>
+  <part element='tns:pollTraces' name='pollTraces'></part>
+ </message>
+ <message name='Tracking_requestTrace'>
+  <part element='tns:requestTrace' name='requestTrace'></part>
+ </message>
+ <message name='Tracking_pollTracesResponse'>
+  <part element='tns:pollTracesResponse' name='pollTracesResponse'></part>
+ </message>
+ <portType name='Tracking'>
+  <operation name='pollTraces' parameterOrder='pollTraces'>
+   <input message='tns:Tracking_pollTraces'></input>
+   <output message='tns:Tracking_pollTracesResponse'></output>
+   <fault message='tns:InvalidDataException' name='InvalidDataException'></fault>
+   <fault message='tns:OperationFailedException' name='OperationFailedException'></fault>
+  </operation>
+  <operation name='requestTrace' parameterOrder='requestTrace'>
+   <input message='tns:Tracking_requestTrace'></input>
+   <output message='tns:Tracking_requestTraceResponse'></output>
+   <fault message='tns:InvalidDataException' name='InvalidDataException'></fault>
+   <fault message='tns:OperationFailedException' name='OperationFailedException'></fault>
+  </operation>
+ </portType>
+ <binding name='TrackingBinding' type='tns:Tracking'>
+  <soap:binding style='document' transport='http://schemas.xmlsoap.org/soap/http'/>
+  <operation name='pollTraces'>
+   <soap:operation soapAction=''/>
+   <input>
+    <soap:body use='literal'/>
+   </input>
+   <output>
+    <soap:body use='literal'/>
+   </output>
+   <fault name='InvalidDataException'>
+    <soap:fault name='InvalidDataException' use='literal'/>
+   </fault>
+   <fault name='OperationFailedException'>
+    <soap:fault name='OperationFailedException' use='literal'/>
+   </fault>
+  </operation>
+  <operation name='requestTrace'>
+   <soap:operation soapAction=''/>
+   <input>
+    <soap:body use='literal'/>
+   </input>
+   <output>
+    <soap:body use='literal'/>
+   </output>
+   <fault name='InvalidDataException'>
+    <soap:fault name='InvalidDataException' use='literal'/>
+   </fault>
+   <fault name='OperationFailedException'>
+    <soap:fault name='OperationFailedException' use='literal'/>
+   </fault>
+  </operation>
+ </binding>
+ <service name='TrackingService'>
+  <port binding='tns:TrackingBinding' name='TrackingPort'>
+   <soap:address location='https://soap.box.trimbletl.com/fleet-service/Tracking'/>
+  </port>
+ </service>
+</definitions>
